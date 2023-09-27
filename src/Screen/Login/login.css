@@ -1,0 +1,23 @@
+#components-form-demo-normal-login .login-form {
+  max-width: 300px;
+}
+#components-form-demo-normal-login .login-form-forgot {
+  float: right;
+}
+#components-form-demo-normal-login .ant-col-rtl .login-form-forgot {
+  float: left;
+}
+#components-form-demo-normal-login .login-form-button {
+  width: 100%;
+}
+/* styles.css */
+
+.gradient {
+  background-image: linear-gradient(to bottom, #0e1c26, #13232d, #172b34, #1d323b, #223a42, #243e47, #25424b, #274650, #264754, #254759, #26485d, #294861);
+}
+.card-with-gradient {
+  /* background-image: linear-gradient(to bottom, #f5f5f5, #f5f5f5, #f5f5f5, #f5f5f5, #f5f5f5, #e0e0e0, #cbcbcb, #b6b6b6, #898989, #5f5f5f, #373737, #141414);   */
+  border-radius: 8px; /* Optionally add border-radius for rounded corners */
+  /* color: white; */
+  box-shadow: 0px 0px 20px rgb(179, 179, 179,1); 
+}
