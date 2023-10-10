@@ -1,120 +1,170 @@
-import { Button, Card, Col, DatePicker, Form, Image, Input, InputNumber, message, Row, Select } from 'antd';
-import React, { useState, useEffect } from 'react';
-import * as htmlToImage from 'html-to-image';
-import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image';
-import axios from 'axios';
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Form,
+  Image,
+  Input,
+  InputNumber,
+  message,
+  Row,
+  Select,
+} from "antd";
+import React, { useState, useEffect } from "react";
+import * as htmlToImage from "html-to-image";
+import { toPng, toJpeg, toBlob, toPixelData, toSvg } from "html-to-image";
+import axios from "axios";
 
-const FormSanPham = () => {
+const FormSanPham = (prop) => {
+  const { Option } = Select;
+  const { TextArea } = Input;
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
-
-  const [imageUrl, setImageUrl] = useState('');
-  // const imageId = '6501c9b35d709cc22769aa50';
-  // useEffect(() => {
-  //   // Fetch the image data from the backend
-  //   const fetchImage = async () => {
-  //     try {
-        // const response = await axios.get(`http://localhost:3001/api/images/image/${imageId}`);
-        // const baseUrl = 'http://localhost:3001/api/images/image';
-        // Create a data URL from the received binary data and content type
-        // const contentType = response.headers['content-type'];
-        // const blob = new Blob([new Uint8Array(response.data)], { type: contentType });
-        // const dataUrl = URL.createObjectURL(blob);
-        // console.log('test >>>',dataUrl);
-
-  //       const fullImageUrl = `${baseUrl}/${imageId}`;
-  //       setImageUrl(fullImageUrl);
-  //     } catch (error) {
-  //       console.error('Error fetching image:', error);
-  //     }
-  //   };
-
-  //   fetchImage();
-  // }, [imageId]);
+  const info = JSON.parse(localStorage.getItem('user'));
+  const userId = info ? info._id : null;
+  const [imageUrl, setImageUrl] = useState("");
 
   const saveImage = async (blob) => {
     const formData = new FormData();
-    formData.append('image', blob, 'form-image.png');
+    formData.append("image", blob, "form-image.png");
     try {
-      const response = await axios.post("http://localhost:3001/api/images/upload-image", formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await axios.post(
+        "http://localhost:3001/api/images/upload-image",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       if (response) {
         messageApi.open({
-          type: 'success',
+          type: "success",
           content: response.data.message,
         });
         form.resetFields();
       }
     } catch (error) {
       messageApi.open({
-        type: 'error',
+        type: "error",
         content: error.response.data.message,
       });
     }
   };
 
-  const captureFormAsImage = async () => {
-    // await setDisable(true)
+  const saveProduct = async (e) => {
+    let name = e.name;
+    let date = e.date;
+    let number = e.number;
+    let hsd = e.hsd ? e.hsd + " " + e.after : "Vô thời hạn";
+    let ingredient = e.ingredient;
+    let createBy = userId;
     try {
-      const formElement = document.getElementById('form-card');
-      const blob = await htmlToImage.toBlob(formElement);
-      // if (blob) {
-      //   const url = window.URL.createObjectURL(blob);
-      //   const a = document.createElement('a');
-      //   a.href = url;
-      //   a.download = 'form-image.png';
-      //   document.body.appendChild(a);
-      //   a.click();
-
-      //   // Clean up
-      //   window.URL.revokeObjectURL(url);
-      //   document.body.removeChild(a);
-      // }
-      // setDisable(false)
-      form.resetFields();
-      await saveImage(blob);
-      return blob;
+      const response = await axios.post("http://localhost:3001/api/product", {
+        createBy,
+        name,
+        number,
+        date,
+        hsd,
+        ingredient,
+      });
+      if (response) {
+        messageApi.open({
+          type: "success",
+          content: "Thêm mới sản phẩm thành công !!",
+        });
+        form.resetFields();
+      }
     } catch (error) {
-      console.error('Error converting form to image:', error);
-      return null;
+      messageApi.open({
+        type: "error",
+        content: error.response.data.message,
+      });
     }
   };
+  const optinon = [
+    { value: "Ngày", label: "Ngày" },
+    { value: "Tháng", label: "Tháng" },
+    { value: "Năm", label: "Năm" },
+  ];
+  const afterSelect = <Select defaultValue={"Tháng"} style={{width: 150}} options={optinon} />;
   return (
-    <Card id='form-card'>
+    <Card id="form-card">
       {contextHolder}
-      <Form layout='vertical' form={form} onFinish={captureFormAsImage}>
-        <Form.Item label="Tên sản phẩm" >
-          <Input placeholder='Nhập tên sản phẩm' />
+      <Form layout="vertical" form={form} onFinish={saveProduct}>
+        <Form.Item
+          label="Tên sản phẩm"
+          name="name"
+          rules={[
+            {
+              required: true,
+              message: "Tên sản phẩm không thể để trống!",
+            },
+          ]}
+        >
+          <Input placeholder="Nhập tên sản phẩm" />
         </Form.Item>
         <Row gutter={8}>
           <Col span={12}>
-            <Form.Item label="Ngày sản xuất">
-              <DatePicker style={{ width: '100%' }} placeholder="Ngày sản xuất" />
+            <Form.Item label="Ngày sản xuất" name="date">
+              <DatePicker
+                style={{ width: "100%" }}
+                placeholder="Ngày sản xuất"
+              />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Số lượng sản phẩm">
-              <InputNumber style={{ width: '100%' }} placeholder="Số lượng sản phẩm" />
+            <Form.Item
+              label="Hạn sử dụng"
+              name="hsd"
+              // rules={[
+              //   {
+              //     required: true,
+              //     message: "Hạn sử dụng không thể để trống!",
+              //   },
+              // ]}
+            >
+              <InputNumber
+                style={{ width: "100%" }}
+                placeholder="Thời gian sử dụng"
+                addonAfter={
+                  <Form.Item noStyle name="after">
+                    {afterSelect}
+                  </Form.Item>
+                }
+              />
             </Form.Item>
           </Col>
         </Row>
-        <Form.Item label="Trung tâm kiểm định" placeholder="Chọn trung tâm kiểm định">
-          <Select options={[
-            { value: 'a', label: 'Trung Tâm kiểm định sản phẩm công nghệ' },
-            { value: 'b', label: 'Trung tâm kiểm định chất lượng thực phẩm' }]}
+        <Form.Item label="Số lượng sản phẩm" name="number">
+          <InputNumber
+            style={{ width: "100%" }}
+            placeholder="Số lượng sản phẩm"
+            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
+            parser={(value) => value.replace(/\./g, '')}
           />
         </Form.Item>
+        <Form.Item
+          label="Thành phần"
+          name="ingredient"
+          rules={[
+            {
+              required: true,
+              message: "Thành phần không thể để trống!",
+            },
+          ]}
+        >
+          <TextArea rows={4} placeholder="Thành phần có trong sản phẩm" />
+        </Form.Item>
         <Form.Item>
-          <Button type='primary' htmlType="submit">
-            Ký xác nhận
+          <Button type="primary" htmlType="submit">
+            Tạo sản phẩm
           </Button>
         </Form.Item>
       </Form>
       {/* <Image src={imageUrl}/> */}
     </Card>
-  )
-}
+  );
+};
 export default FormSanPham;

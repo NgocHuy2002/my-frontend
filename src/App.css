@@ -1,6 +1,10 @@
 .App {
   text-align: center;
 }
+/* Set overflow hidden for the body element */
+body {
+  overflow: hidden;
+}
 
 .App-logo {
   height: 40vmin;
