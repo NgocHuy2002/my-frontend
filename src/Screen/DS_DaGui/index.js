@@ -89,12 +89,12 @@ const DanhSachHopDong = (prop) => {
       dataIndex: "ingredient",
       key: "ingredient",
       ellipsis: true,
-      width: "30%",
+      width: "25%",
     },
     {
       title: "Trạng thái",
       dataIndex: "isSend",
-      width: "11%",
+      width: "16%",
       fixed: "right",
       align: "center",
       render: (value) => {

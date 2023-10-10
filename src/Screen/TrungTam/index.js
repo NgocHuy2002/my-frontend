@@ -28,6 +28,7 @@ const TrungTam = () => {
     {
       title: "Khóa công khai",
       dataIndex: "publicKey",
+      ellipsis: true,
       key: "publicKey",
     },
     {
@@ -35,22 +36,7 @@ const TrungTam = () => {
       dataIndex: "email",
       key: "email",
     },
-
-    {
-      title: "Hành động",
-      key: "action",
-      render: (item, record) => formatActionCell(record),
-      width: "10%",
-    },
   ];
-  function formatActionCell(value) {
-    return (
-      <Space>
-        <CommonButtonEdit onClick={() => console.log(value)} />
-        <CommonButtonDelete onConfirm={() => console.log(value)} />
-      </Space>
-    );
-  }
   // ---- ACTION ---- //
   const getCompany = async (e) => {
     // let createBy = userId;

@@ -86,12 +86,12 @@ const DanhSachSanPham = (prop) => {
       dataIndex: "ingredient",
       key: "ingredient",
       ellipsis: true,
-      width: "30%",
+      width: "25%",
     },
     {
       title: "Trạng thái",
       dataIndex: "isSend",
-      width: "11%",
+      width: "16%",
       align: "center",
       render: (value) => {
         switch (value) {
@@ -159,7 +159,7 @@ const DanhSachSanPham = (prop) => {
     return (
       <Space>
         <CommonButtonEdit onClick={() => showModal(value)} />
-        <CommonButtonDelete onConfirm={() => console.log(value)} />
+        <CommonButtonDelete onConfirm={() => handleDelete(value._id)} />
       </Space>
     );
   }
@@ -172,6 +172,16 @@ const DanhSachSanPham = (prop) => {
     <Select defaultValue={"Tháng"} style={{ width: 150 }} options={optinon} />
   );
   // ---- ACTION ---- //
+  const handleDelete = async (productId) => {
+    console.log(productId);
+    try {
+      await axios.delete(`http://localhost:3001/api/product/${productId}`); // Adjust the API endpoint
+      // After successful deletion, update the product list
+      getProduct();
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  }
   // ---- GET PRODUCT ---- //
   const getProduct = async (e) => {
     let createBy = userId;
@@ -209,7 +219,7 @@ const DanhSachSanPham = (prop) => {
   const captureModalContent = async () => {
     setIsSend(true)
     const values = form.getFieldsValue();
-    let sendBy = product._id;
+    let sendBy = userId;
     let sendTo = values.receiver;
     let name = values.name.trim();
     html2canvas(modalContentRef.current).then((canvas) => {
@@ -217,7 +227,7 @@ const DanhSachSanPham = (prop) => {
       canvas.toBlob((blob) => {
         // Create a FormData object to send the image as a file
         const formData = new FormData();
-        formData.append("image", blob, name+".png");
+        formData.append("image", blob, name + ".png");
         formData.append('sendBy', sendBy);
         formData.append('sendTo', sendTo);
         // Send the image to the backend
@@ -262,6 +272,7 @@ const DanhSachSanPham = (prop) => {
     setProduct(value);
     const matches = value.hsd.match(/^(\d+) (.+)$/);
 
+    console.log(matches);
     // Check if there are matches
     if (matches && matches.length === 3) {
       number = matches[1]; // Extracted number
@@ -392,12 +403,12 @@ const DanhSachSanPham = (prop) => {
                 <Form.Item
                   label="Hạn sử dụng"
                   name="hsd"
-                  // rules={[
-                  //   {
-                  //     required: true,
-                  //     message: "Hạn sử dụng không thể để trống!",
-                  //   },
-                  // ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Hạn sử dụng không thể để trống!",
+                //   },
+                // ]}
                 >
                   <InputNumber
                     style={{ width: "100%" }}
@@ -446,7 +457,9 @@ const DanhSachSanPham = (prop) => {
               <Select options={options} />
             </Form.Item>
             <div style={{ textAlign: "center" }}>
-              <Button onClick={(value) => handleEdit(value)}>Chỉnh sửa</Button>
+              <Button
+                disabled={product && product.isSend != "WAIT" ? true : false}
+                onClick={(value) => handleEdit(value)}>Chỉnh sửa</Button>
               <Button
                 htmlType="submit"
                 // onClick={captureModalContent}

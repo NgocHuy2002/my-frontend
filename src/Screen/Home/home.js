@@ -4,7 +4,7 @@ import {
   UserOutlined,
   VideoCameraOutlined,
   MailOutlined,
-  ContainerOutlined,MehOutlined,
+  ContainerOutlined, MehOutlined,
 } from "@ant-design/icons";
 import { Col, Layout, Menu, Row, theme, Avatar, Dropdown } from "antd";
 import { useLocation, Link, useNavigate } from "react-router-dom";
@@ -59,9 +59,15 @@ const Home = ({ children }) => {
         icon: <ContainerOutlined />,
         to: "/check",
       },
+      {
+        label: "Cấp chứng chỉ",
+        key: "/phieu",
+        icon: <ContainerOutlined />,
+        to: "/phieu",
+      },
     ];
   }
-  else if(role == null){
+  else if (role == null) {
     items = [{
       label: "What are you try to do ?",
       key: "/tryhard",
@@ -85,7 +91,7 @@ const Home = ({ children }) => {
     localStorage.clear();
   }
   return (
-    <Layout style={{ flex: 1, height: "100vh", overflow:"hidden"}}>
+    <Layout style={{ flex: 1, height: "100vh", overflow: "hidden" }}>
       <Sider
         breakpoint="lg"
         collapsedWidth="0"
@@ -116,7 +122,7 @@ const Home = ({ children }) => {
             <Col span={4}>
               <div className="logo"></div>
             </Col>
-            <Col span={14}>
+            <Col span={11}>
               <Menu mode="horizontal" selectedKeys={selectedKey}>
                 {items
                   .filter((item) => item !== null) // Remove null items
@@ -127,8 +133,11 @@ const Home = ({ children }) => {
                   ))}
               </Menu>
             </Col>
+            <Col span={4}>
+              {/* "" */}
+            </Col>
             <Col
-              span={2}
+              span={5}
               style={{
                 display: "flex",
                 justifyContent: "center",
@@ -139,30 +148,20 @@ const Home = ({ children }) => {
               <Dropdown overlay={menu} trigger={["click"]}>
                 <Avatar size="large" icon={<UserOutlined />} />
               </Dropdown>
-              <p style={{ margin: 0, paddingLeft: 10 }}>{info ? info.username : ""}</p>
+              <p style={{ margin: 0, paddingLeft: 10 }}>{info ? info.name || info.username : ""}</p>
             </Col>
-            {/* <Col
-              span={2}
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "fit-content",
-              }}
-            >
-              <p>Đăng xuất</p>
-            </Col> */}
           </Row>
         </Header>
         <Content
           style={{
             margin: "24px 16px 0",
+            height: '100vh'
           }}
         >
           <div
             style={{
+              height: '100vh',
               padding: 24,
-              minHeight: 360,
               background: colorBgContainer,
             }}
           >

@@ -88,7 +88,7 @@ const FormSanPham = (prop) => {
     { value: "Tháng", label: "Tháng" },
     { value: "Năm", label: "Năm" },
   ];
-  const afterSelect = <Select defaultValue={"Tháng"} style={{width: 150}} options={optinon} />;
+  const afterSelect = <Select style={{width: 150}} options={optinon} />;
   return (
     <Card id="form-card">
       {contextHolder}

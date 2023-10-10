@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import "./App.css";
 import LoginScreen from "./Screen/Login/login.js";
@@ -16,6 +17,8 @@ import FormSanPham from "./Screen/SanPham";
 import KiemDuyet from "./Screen/KiemDuyet";
 import NotFound from "./Screen/404_Screen";
 import GenerateKey from "./Screen/TestFolder/Generate";
+import { useEffect } from "react";
+import PhieuKiemDinh from "./Screen/TaoPhieuKiemDinh";
 
 const info = JSON.parse(localStorage.getItem("user"));
 let userRole = info ? JSON.parse(localStorage.getItem("user")).role : null;
@@ -29,62 +32,69 @@ const ProtectedRoute = ({ element, requiredRole }) => {
       // Redirect to a 404 page if the user doesn't have permission
       return <Navigate to="/404" />;
     }
-  }else{
-      return <Navigate to={"/"}/>;
+  } else {
+    return <Navigate to={"/"} />;
   }
 };
 
 function App() {
-  return (
-    <Router>
+
+return (
+  <Router>
+    <Routes>
+      <Route path="/" element={<LoginScreen />} />
+    </Routes>
+    <Home>
       <Routes>
-        <Route path="/" element={<LoginScreen />} />
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute element={<FormSanPham />} requiredRole="user" />
+          }
+        />
+        <Route
+          path="/product"
+          element={
+            <ProtectedRoute
+              element={<DanhSachSanPham />}
+              requiredRole="user"
+            />
+          }
+        />
+        <Route
+          path="/contract"
+          element={
+            <ProtectedRoute
+              element={<DanhSachHopDong />}
+              requiredRole="user"
+            />
+          }
+        />
+        <Route
+          path="/company"
+          element={
+            <ProtectedRoute element={<TrungTam />} requiredRole="user" />
+          }
+        />
+        <Route
+          path="/check"
+          element={
+            <ProtectedRoute element={<KiemDuyet />} requiredRole="admin" />
+          }
+        />
+         <Route
+          path="/phieu"
+          element={
+            <ProtectedRoute element={<PhieuKiemDinh />} requiredRole="admin" />
+          }
+        />
       </Routes>
-      <Home>
-        <Routes>
-          <Route
-            path="/home"
-            element={
-              <ProtectedRoute element={<FormSanPham />} requiredRole="user" />
-            }
-          />
-          <Route
-            path="/product"
-            element={
-              <ProtectedRoute
-                element={<DanhSachSanPham />}
-                requiredRole="user"
-              />
-            }
-          />
-          <Route
-            path="/contract"
-            element={
-              <ProtectedRoute
-                element={<DanhSachHopDong />}
-                requiredRole="user"
-              />
-            }
-          />
-          <Route
-            path="/company"
-            element={
-              <ProtectedRoute element={<TrungTam />} requiredRole="user" />
-            }
-          />
-          <Route
-            path="/check"
-            element={
-              <ProtectedRoute element={<KiemDuyet />} requiredRole="admin" />
-            }
-          />
-        </Routes>
-        <Routes>
-          <Route path="/404" element={<NotFound />} />
-        </Routes>
-      </Home>
-    </Router>
-  );
+      <Routes>
+        <Route path="/404" element={<NotFound />} />
+      </Routes>
+    </Home>
+  </Router>
+);
 }
 
 export default App;

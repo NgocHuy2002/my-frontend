@@ -12,7 +12,7 @@ import {
   Alert,
   Modal,
 } from "antd";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, useLocation } from "react-router-dom";
 
 const LoginScreen = () => {
   const [users, setUsers] = useState([]);
@@ -133,11 +133,14 @@ const LoginScreen = () => {
     window.URL.revokeObjectURL(url);
   }
 
-  const handleDownload = async () =>{
+  const handleDownload = async () => {
     setIsModal(false)
     await downloadKeyFile(privateKeyFileName, privateKeyBase64);
     await downloadKeyFile(publicKeyFileName, publicKeyBase64);
   }
+
+  // ============================== USEEFFECT ======================================
+
   return (
     <>
       <div
