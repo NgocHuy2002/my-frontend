@@ -21,7 +21,7 @@ const FormSanPham = (prop) => {
   const { TextArea } = Input;
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
-  const info = JSON.parse(localStorage.getItem('user'));
+  const info = JSON.parse(localStorage.getItem("user"));
   const userId = info ? info._id : null;
   const [imageUrl, setImageUrl] = useState("");
 
@@ -88,7 +88,7 @@ const FormSanPham = (prop) => {
     { value: "Tháng", label: "Tháng" },
     { value: "Năm", label: "Năm" },
   ];
-  const afterSelect = <Select style={{width: 150}} options={optinon} />;
+  const afterSelect = <Select style={{ width: 150 }} options={optinon} />;
   return (
     <Card id="form-card">
       {contextHolder}
@@ -141,8 +141,10 @@ const FormSanPham = (prop) => {
           <InputNumber
             style={{ width: "100%" }}
             placeholder="Số lượng sản phẩm"
-            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
-            parser={(value) => value.replace(/\./g, '')}
+            formatter={(value) =>
+              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+            }
+            parser={(value) => value.replace(/\./g, "")}
           />
         </Form.Item>
         <Form.Item
@@ -155,7 +157,14 @@ const FormSanPham = (prop) => {
             },
           ]}
         >
-          <TextArea rows={4} placeholder="Thành phần có trong sản phẩm" />
+          <TextArea
+            style={{
+              height: 250,
+              resize: "none",
+            }}
+            rows={4}
+            placeholder="Thành phần có trong sản phẩm"
+          />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">

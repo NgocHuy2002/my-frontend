@@ -179,9 +179,9 @@ const DanhSachSanPham = (prop) => {
       // After successful deletion, update the product list
       getProduct();
     } catch (error) {
-      console.error('Error deleting product:', error);
+      console.error("Error deleting product:", error);
     }
-  }
+  };
   // ---- GET PRODUCT ---- //
   const getProduct = async (e) => {
     let createBy = userId;
@@ -217,7 +217,7 @@ const DanhSachSanPham = (prop) => {
   };
   // Convert to image //
   const captureModalContent = async () => {
-    setIsSend(true)
+    setIsSend(true);
     const values = form.getFieldsValue();
     let sendBy = userId;
     let sendTo = values.receiver;
@@ -228,8 +228,9 @@ const DanhSachSanPham = (prop) => {
         // Create a FormData object to send the image as a file
         const formData = new FormData();
         formData.append("image", blob, name + ".png");
-        formData.append('sendBy', sendBy);
-        formData.append('sendTo', sendTo);
+        formData.append("sendBy", sendBy);
+        formData.append("sendTo", sendTo);
+        formData.append("productId", product._id)
         // Send the image to the backend
         try {
           const response = axios.post(
@@ -312,7 +313,7 @@ const DanhSachSanPham = (prop) => {
   };
   // ---- HANDLE UPDATE ---- //
   const handleUpdateProduct = (value) => {
-    setIsSend(false)
+    setIsSend(false);
     value = {
       ...value,
       hsd: value.hsd ? value.hsd + " " + value.after : "Vô thời hạn",
@@ -376,8 +377,8 @@ const DanhSachSanPham = (prop) => {
         onCancel={() => setIsModalOpen(false)}
         onOk={() => setIsModalOpen(false)}
       >
-        <div ref={modalContentRef} style={{ padding: 15 }}>
-          <Form layout="vertical" form={form} onFinish={handleSend}>
+        <Form layout="vertical" form={form} onFinish={handleSend} disabled={product && product.isSend != "WAIT" ? true : false}>
+          <div ref={modalContentRef} style={{ padding: 15 }}>
             <Form.Item
               label="Tên sản phẩm"
               name="name"
@@ -403,12 +404,12 @@ const DanhSachSanPham = (prop) => {
                 <Form.Item
                   label="Hạn sử dụng"
                   name="hsd"
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: "Hạn sử dụng không thể để trống!",
-                //   },
-                // ]}
+                  // rules={[
+                  //   {
+                  //     required: true,
+                  //     message: "Hạn sử dụng không thể để trống!",
+                  //   },
+                  // ]}
                 >
                   <InputNumber
                     style={{ width: "100%" }}
@@ -442,7 +443,16 @@ const DanhSachSanPham = (prop) => {
                 },
               ]}
             >
-              <TextArea rows={4} placeholder="Thành phần có trong sản phẩm" />
+              <TextArea
+                showCount
+                maxLength={5000}
+                style={{
+                  height: 200,
+                  resize: "none",
+                }}
+                rows={4}
+                placeholder="Thành phần có trong sản phẩm"
+              />
             </Form.Item>
             <Form.Item
               label="Đơn vị kiểm duyệt"
@@ -456,22 +466,25 @@ const DanhSachSanPham = (prop) => {
             >
               <Select options={options} />
             </Form.Item>
-            <div style={{ textAlign: "center" }}>
-              <Button
-                disabled={product && product.isSend != "WAIT" ? true : false}
-                onClick={(value) => handleEdit(value)}>Chỉnh sửa</Button>
-              <Button
-                htmlType="submit"
-                // onClick={captureModalContent}
-                type="primary"
-                disabled={product && product.isSend != "WAIT" ? true : false}
-                style={{ marginLeft: "10px" }}
-              >
-                Gửi kiểm duyệt
-              </Button>
-            </div>
-          </Form>
-        </div>
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <Button
+              disabled={product && product.isSend != "WAIT" ? true : false}
+              onClick={(value) => handleEdit(value)}
+            >
+              Chỉnh sửa
+            </Button>
+            <Button
+              htmlType="submit"
+              // onClick={captureModalContent}
+              type="primary"
+              disabled={product && product.isSend != "WAIT" ? true : false}
+              style={{ marginLeft: "10px" }}
+            >
+              Gửi kiểm duyệt
+            </Button>
+          </div>
+        </Form>
       </Modal>
     </>
   );

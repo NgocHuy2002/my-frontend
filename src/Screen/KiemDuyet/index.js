@@ -13,13 +13,12 @@ import CommonButtonEdit from "../../Component/CustomEditButton";
 import CommonButtonDelete from "../../Component/CustomDeleteButton";
 import axios from "axios";
 import dayjs from "dayjs";
-import { useHistory } from 'react-router-dom';
+import { Link, useNavigate } from "react-router-dom";
 
 
 const KiemDuyet = () => {
   // const [blobUrls, setBlobUrls] = useState([]);
   const [form] = Form.useForm();
-  const history = useHistory();
   const blobUrls = [];
   const [imageData, setImageData] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -29,7 +28,8 @@ const KiemDuyet = () => {
   const [list, setList] = useState();
   const [messageApi, contextHolder] = message.useMessage();
   const [search, setSearch] = useState({});
-
+  const navigate = useNavigate();
+  const [productId, setProductId] = useState();
   const getUser = async () => {
     try {
       const response = await axios.get("http://localhost:3001/api/users");
@@ -104,6 +104,7 @@ const KiemDuyet = () => {
   }, []);
   const handleModel = (value) => {
     setIsOpen(true)
+    setProductId(value.productId);
     form.setFieldsValue({
       sendTo: value.sendTo,
       sendBy: value.sendBy,
@@ -113,6 +114,10 @@ const KiemDuyet = () => {
   }
   const handleClose = () => {
     setIsOpen(false);
+  }
+  const handleCheck = () => {
+    const value = form.getFieldsValue();
+    navigate('/phieu', {state:{name: value.filename, dateSend: value.createAt, sendBy: value.sendBy, productId: productId}})
   }
   return (
     <>
@@ -144,7 +149,7 @@ const KiemDuyet = () => {
           ))}
         </Row>
       </Card>
-      <Modal title={"Thông tin sản phẩm"} open={isOpen} okText={"Xét duyệt"} onOk={() => console.log("asd")} cancelText={"Đóng"} onCancel={() => handleClose()}>
+      <Modal title={"Thông tin sản phẩm"} open={isOpen} okText={"Xét duyệt"}  onOk={() => handleCheck()} cancelText={"Đóng"} onCancel={() => handleClose()}>
         <Form form={form} layout="vertical" disabled >
           <Form.Item label={"Tên sản phẩm"} name={"filename"}>
             <Input bordered={false}/>
