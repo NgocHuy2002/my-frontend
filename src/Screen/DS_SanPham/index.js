@@ -24,6 +24,7 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   PauseCircleOutlined,
+  ExportOutlined,
 } from "@ant-design/icons";
 import AddNewButton from "../../Component/AddNewButton";
 import CommonButtonEdit from "../../Component/CustomEditButton";
@@ -39,6 +40,7 @@ const DanhSachSanPham = (prop) => {
   const [company, setCompany] = useState();
   const { TextArea } = Input;
   const [form] = Form.useForm();
+  const [file] = Form.useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(true);
   const info = JSON.parse(localStorage.getItem("user"));
@@ -46,9 +48,17 @@ const DanhSachSanPham = (prop) => {
   const [product, setProduct] = useState();
   const [isSend, setIsSend] = useState(false);
   const [search, setSearch] = useState({ CreateBy: userId });
+  const [isOpen, setIsOpen] = useState(false);
+  const [openInfo, setOpenInfo] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const modalContentRef = useRef(null);
-  const [modalImage, setModalImage] = useState(null);
+  const [publicKeyFile, setPublicKeyFile] = useState(null);
+  const [dataDecode, setDataDecode] = useState();
+  const [encodeData, setInfo] = useState();
+  const handlePublicKeyChange = (event) => {
+    const file = event.target.files[0];
+    setPublicKeyFile(file);
+  };
   let options;
   const columns = [
     {
@@ -160,9 +170,31 @@ const DanhSachSanPham = (prop) => {
       <Space>
         <CommonButtonEdit onClick={() => showModal(value)} />
         <CommonButtonDelete onConfirm={() => handleDelete(value._id)} />
+        <CommonButtonEdit
+          icon={<ExportOutlined />}
+          disabled={value.isSend == "APPROVED" || value.isSend == "REFUSE" ? false : true}
+          titleTooltip={"Xem thông tin kiểm định"}
+          onClick={() => handleSee(value)}
+        />
       </Space>
     );
   }
+  const handleSee = (value) => {
+    setIsOpen(true);
+    axios
+      .get("http://localhost:3001/api/contracts/", {
+        params: {
+          productId: value._id,
+        },
+      })
+      .then((response) => {
+        console.log(response);
+          setDataDecode(response.data[0].data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data: ", error);
+      });
+  };
   const optinon = [
     { value: "Ngày", label: "Ngày" },
     { value: "Tháng", label: "Tháng" },
@@ -230,7 +262,7 @@ const DanhSachSanPham = (prop) => {
         formData.append("image", blob, name + ".png");
         formData.append("sendBy", sendBy);
         formData.append("sendTo", sendTo);
-        formData.append("productId", product._id)
+        formData.append("productId", product._id);
         // Send the image to the backend
         try {
           const response = axios.post(
@@ -286,6 +318,7 @@ const DanhSachSanPham = (prop) => {
       after: string,
       number: value.number,
       ingredient: value.ingredient,
+      receiver: value.sendTo ? value.sendTo : null,
     });
   };
   const handleSend = () => {
@@ -338,6 +371,7 @@ const DanhSachSanPham = (prop) => {
       ...value,
       hsd: value.hsd ? value.hsd + " " + value.after : "Vô thời hạn",
       isSend: "PENDING",
+      sendTo: value.receiver,
     };
     if (value.hasOwnProperty("after")) {
       delete value["after"];
@@ -347,6 +381,26 @@ const DanhSachSanPham = (prop) => {
       .then((response) => {
         console.log(response);
         setIsModalOpen(false);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+  const handleAcceptProduct = async () => {
+    const formData = new FormData();
+    formData.append("publicKey", publicKeyFile);
+    formData.append("data", dataDecode);
+    await axios
+      .post("http://localhost:3001/api/contracts/encode", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((response) => {
+        if (response.data.data) {
+          setInfo(response.data.data);
+          setIsOpen(false);
+          setOpenInfo(true);
+        }
+        // console.log(response);
       })
       .catch((error) => {
         console.log(error);
@@ -377,7 +431,12 @@ const DanhSachSanPham = (prop) => {
         onCancel={() => setIsModalOpen(false)}
         onOk={() => setIsModalOpen(false)}
       >
-        <Form layout="vertical" form={form} onFinish={handleSend} disabled={product && product.isSend != "WAIT" ? true : false}>
+        <Form
+          layout="vertical"
+          form={form}
+          onFinish={handleSend}
+          disabled={product && product.isSend != "WAIT" ? true : false}
+        >
           <div ref={modalContentRef} style={{ padding: 15 }}>
             <Form.Item
               label="Tên sản phẩm"
@@ -448,7 +507,7 @@ const DanhSachSanPham = (prop) => {
                 maxLength={5000}
                 style={{
                   height: 200,
-                  resize: "none",
+                  // resize: "none",
                 }}
                 rows={4}
                 placeholder="Thành phần có trong sản phẩm"
@@ -485,6 +544,57 @@ const DanhSachSanPham = (prop) => {
             </Button>
           </div>
         </Form>
+      </Modal>
+      {/* Modal see */}
+      <Modal
+        open={isOpen}
+        onCancel={() => setIsOpen(false)}
+        onOk={() => handleAcceptProduct()}
+      >
+        <Form form={file}>
+          <Form.Item>
+            <input
+              type="file"
+              accept=".crt"
+              id="privateKeyFile"
+              onChange={handlePublicKeyChange}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal
+        open={openInfo}
+        onCancel={() => setOpenInfo(false)}
+        onOk={() => setOpenInfo(false)}
+      >
+        <div>
+          <p>
+            <strong>Tên sản phẩm:</strong> {encodeData? encodeData.filename : null}
+          </p>
+          <p>
+            <strong>Ngày tạo:</strong> {encodeData ? encodeData.createAt : null}
+          </p>
+          {/* <p>
+            <strong>Người gửi:</strong> {encodeData ? encodeData.sendBy : null}
+          </p> */}
+          <p>
+            <strong>Nhận xét:</strong> {encodeData ? encodeData.decription : null}
+          </p>
+          <hr />
+          <p>
+            <strong>Kết quả kiểm định:</strong>
+          </p>
+          <ul>
+            {encodeData
+              ? encodeData.test.map((item, index) => (
+                  <li key={index}>
+                    <strong>Test {item.testName}:</strong> {item.result}
+                    {item.final && <span> (Đạt)</span>}
+                  </li>
+                ))
+              : null}
+          </ul>
+        </div>
       </Modal>
     </>
   );

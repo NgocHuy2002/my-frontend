@@ -59,12 +59,12 @@ const Home = ({ children }) => {
         icon: <ContainerOutlined />,
         to: "/check",
       },
-      {
-        label: "Cấp chứng chỉ",
-        key: "/phieu",
-        icon: <ContainerOutlined />,
-        to: "/phieu",
-      },
+      // {
+      //   label: "Cấp chứng chỉ",
+      //   key: "/phieu",
+      //   icon: <ContainerOutlined />,
+      //   to: "/phieu",
+      // },
     ];
   }
   else if (role == null) {
@@ -80,7 +80,7 @@ const Home = ({ children }) => {
 
   const menu = (
     <Menu>
-      <Menu.Item key="profile">Thông tin tài khoản</Menu.Item>
+      <Menu.Item key="profile" onClick={() => navigate("/info")}>Thông tin tài khoản</Menu.Item>
       <Menu.Item key="logout" onClick={() => handleLogout()}>Đăng xuất</Menu.Item>
     </Menu>
   );
@@ -103,7 +103,7 @@ const Home = ({ children }) => {
         <div className="demo-logo-vertical" style={{ height: 100 }} />
         <Menu theme="dark" mode="inline" selectedKeys={selectedKey}>
           {items
-            .filter((item) => item !== null) // Remove null items
+            .filter((item) => item !== null)
             .map((item) => (
               <Menu.Item key={item.key} icon={item.icon}>
                 <Link to={`${item.key}`}>{item.label}</Link>

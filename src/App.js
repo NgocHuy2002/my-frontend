@@ -19,13 +19,16 @@ import NotFound from "./Screen/404_Screen";
 import GenerateKey from "./Screen/TestFolder/Generate";
 import { useEffect } from "react";
 import PhieuKiemDinh from "./Screen/TaoPhieuKiemDinh";
+import Info from "./Screen/Login/info";
 
 const info = JSON.parse(localStorage.getItem("user"));
-let userRole = info ? JSON.parse(localStorage.getItem("user")).role : null;
-const ProtectedRoute = ({ element, requiredRole }) => {
-  // Check if the user has the required role
+// let userRole = info ? JSON.parse(localStorage.getItem("user")).role : null;
+const ProtectedRoute = ({ element, requiredRoles = [] }) => {
+  // Check if the user is logged in
   if (localStorage.getItem("user") !== null) {
-    if (JSON.parse(localStorage.getItem("user")).role === requiredRole) {
+    const userRole = JSON.parse(localStorage.getItem("user")).role;
+    // Check if the user's role is in the requiredRoles array
+    if (requiredRoles.includes(userRole)) {
       return element;
     } else {
       console.log(JSON.parse(localStorage.getItem("user")).role);
@@ -33,68 +36,80 @@ const ProtectedRoute = ({ element, requiredRole }) => {
       return <Navigate to="/404" />;
     }
   } else {
-    return <Navigate to={"/"} />;
+    // Redirect to the login page if the user is not logged in
+    return <Navigate to="/" />;
   }
 };
 
 function App() {
-
-return (
-  <Router>
-    <Routes>
-      <Route path="/" element={<LoginScreen />} />
-    </Routes>
-    <Home>
+  return (
+    <Router>
       <Routes>
-        <Route
-          path="/home"
-          element={
-            <ProtectedRoute element={<FormSanPham />} requiredRole="user" />
-          }
-        />
-        <Route
-          path="/product"
-          element={
-            <ProtectedRoute
-              element={<DanhSachSanPham />}
-              requiredRole="user"
-            />
-          }
-        />
-        <Route
-          path="/contract"
-          element={
-            <ProtectedRoute
-              element={<DanhSachHopDong />}
-              requiredRole="user"
-            />
-          }
-        />
-        <Route
-          path="/company"
-          element={
-            <ProtectedRoute element={<TrungTam />} requiredRole="user" />
-          }
-        />
-        <Route
-          path="/check"
-          element={
-            <ProtectedRoute element={<KiemDuyet />} requiredRole="admin" />
-          }
-        />
-         <Route
-          path="/phieu"
-          element={
-            <ProtectedRoute element={<PhieuKiemDinh />} requiredRole="admin" />
-          }
-        />
+        <Route path="/" element={<LoginScreen />} />
       </Routes>
-      <Routes>
-        <Route path="/404" element={<NotFound />} />
-      </Routes>
-    </Home>
-  </Router>
-);
+      <Home>
+        <Routes>
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute element={<FormSanPham />} requiredRoles={["user"]} />
+            }
+          />
+          <Route
+            path="/info"
+            element={
+              <ProtectedRoute
+                element={<Info />}
+                requiredRoles={["user", "admin"]}
+              />
+            }
+          />
+          <Route
+            path="/product"
+            element={
+              <ProtectedRoute
+                element={<DanhSachSanPham />}
+                requiredRoles={["user"]}
+              />
+            }
+          />
+          <Route
+            path="/contract"
+            element={
+              <ProtectedRoute
+                element={<DanhSachHopDong />}
+                requiredRoles={["user"]}
+              />
+            }
+          />
+          <Route
+            path="/company"
+            element={
+              <ProtectedRoute element={<TrungTam />} requiredRoles={["user"]} />
+            }
+          />
+          <Route
+            path="/check"
+            element={
+              <ProtectedRoute element={<KiemDuyet />} requiredRoles={["admin"]} />
+            }
+          />
+          <Route
+            path="/phieu"
+            element={
+              <ProtectedRoute
+                element={<PhieuKiemDinh />}
+                requiredRoles={["admin"]}
+              />
+            }
+          />
+        </Routes>
+        <Routes>
+          <Route path="/404" element={<NotFound />} />
+        </Routes>
+      </Home>
+    </Router>
+  );
 }
 
 export default App;

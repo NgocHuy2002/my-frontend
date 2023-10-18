@@ -134,10 +134,10 @@ const LoginScreen = () => {
   }
 
   const handleDownload = async () => {
-    setIsModal(false)
+    setIsModal(false);
     await downloadKeyFile(privateKeyFileName, privateKeyBase64);
     await downloadKeyFile(publicKeyFileName, publicKeyBase64);
-  }
+  };
 
   // ============================== USEEFFECT ======================================
 
@@ -147,15 +147,23 @@ const LoginScreen = () => {
         className="gradient"
         style={{
           display: "flex",
+          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
           height: "100vh",
         }}
       >
+        <h1 style={{ paddingBottom: "20px", color: "white", fontFamily: "Arial, sans-serif", fontSize: "2rem" }}>
+          Cấp phát chứng chỉ kiểm định chất lượng
+        </h1>
         {contextHolder}
         <Card
           size="small"
-          style={{ width: 400 }}
+          style={{
+            width: "80%",
+            maxWidth: "400px",
+            borderRadius: "10px",
+          }}
           className="card-with-gradient"
           title={hidden === true ? "Đăng nhập" : "Đăng ký"}
         >

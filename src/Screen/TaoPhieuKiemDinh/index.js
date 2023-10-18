@@ -12,7 +12,7 @@ import {
   Select,
   Space,
 } from "antd";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import TextArea from "antd/es/input/TextArea";
 import dayjs from "dayjs";
 import axios from "axios";
@@ -26,16 +26,17 @@ const PhieuKiemDinh = () => {
   const [form] = Form.useForm();
   const [file] = Form.useForm();
   const [options, setOptions] = useState([]);
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [privateKeyFile, setPrivateKeyFile] = useState(null);
   const handlePrivateKeyChange = (event) => {
     const file = event.target.files[0];
     setPrivateKeyFile(file);
   };
-  const handleAcceptProduct = async () => {
+  const handleAcceptProduct = async (status) => {
     const result = form.getFieldsValue();
     const value = {
-      isSend: "APPROVED",
+      isSend: status,
     };
     // Make a PUT request to update the product
     await axios
@@ -49,9 +50,24 @@ const PhieuKiemDinh = () => {
       .catch((error) => {
         console.log(error);
       });
+    // edit image
+    await axios
+      .put(`http://localhost:3001/api/images/${location.state.imageId}`, {
+        isCheck: "APPROVED",
+      })
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    //
     const formData = new FormData();
     formData.append("privateKey", privateKeyFile);
     formData.append("data", JSON.stringify(result));
+    formData.append("sendBy", location.state.sendBy);
+    formData.append("productId", location.state.productId);
+    formData.append("sendTo", JSON.parse(localStorage.getItem("user"))._id);
     await axios
       .post("http://localhost:3001/api/contracts", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -62,9 +78,10 @@ const PhieuKiemDinh = () => {
       .catch((error) => {
         console.log(error);
       });
-      setIsOpen(false);
-      form.resetFields();
-      file.resetFields();
+    setIsOpen(false);
+    form.resetFields();
+    file.resetFields();
+    navigate("/check");
   };
   const openModel = () => {
     setIsOpen(true);
@@ -203,24 +220,24 @@ const PhieuKiemDinh = () => {
                     block
                     icon={<PlusOutlined />}
                   >
-                    Add field
+                    Thêm kết quả thử nghiệm
                   </Button>
                 </Form.Item>
               </>
             )}
           </Form.List>
           <Form.Item>
-            <Button type="primary" htmlType="submit">
+            <Button
+              type="primary"
+              htmlType="submit"
+              disabled={location.state.isCheck == "WAIT" ? false : true}
+            >
               Xác nhận chứng chỉ
             </Button>
           </Form.Item>
         </Form>
       </Card>
-      <Modal
-        open={isOpen}
-        onCancel={() => setIsOpen(false)}
-        onOk={() => handleAcceptProduct()}
-      >
+      <Modal open={isOpen} onCancel={() => setIsOpen(false)} footer={false}>
         <Form form={file}>
           <Form.Item>
             <input
@@ -231,6 +248,17 @@ const PhieuKiemDinh = () => {
             />
           </Form.Item>
         </Form>
+        <Space justify="end">
+          <Button
+            type="primary"
+            onClick={() => handleAcceptProduct("APPROVED")}
+          >
+            Chấp nhận
+          </Button>
+          <Button type="default" onClick={() => handleAcceptProduct("REFUSE")}>
+            Từ chối
+          </Button>
+        </Space>
       </Modal>
     </>
   );
