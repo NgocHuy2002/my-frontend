@@ -6,12 +6,13 @@ import {
   MailOutlined,
   ContainerOutlined, MehOutlined,
 } from "@ant-design/icons";
-import { Col, Layout, Menu, Row, theme, Avatar, Dropdown } from "antd";
+import { Col, Layout, Menu, Row, theme, Avatar, Dropdown, Image } from "antd";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import FormSanPham from "../SanPham";
 import DanhSachSanPham from "../DS_SanPham";
 import DanhSachHopDong from "../DS_DaGui";
 import TrungTam from "../TrungTam";
+import Logo from "D:/1_Work/4_React/bc_backend/my-frontend/src/Item/logo2.png"
 
 const Home = ({ children }) => {
   const location = useLocation();
@@ -80,7 +81,7 @@ const Home = ({ children }) => {
 
   const menu = (
     <Menu>
-      <Menu.Item key="profile" onClick={() => navigate("/info")}>Thông tin tài khoản</Menu.Item>
+      <Menu.Item key="profile" onClick={() => console.log("NUll")}>Thông tin tài khoản</Menu.Item>
       <Menu.Item key="logout" onClick={() => handleLogout()}>Đăng xuất</Menu.Item>
     </Menu>
   );
@@ -120,7 +121,9 @@ const Home = ({ children }) => {
         >
           <Row>
             <Col span={4}>
-              <div className="logo"></div>
+              <div className="logo">
+                <img src={Logo} height={50} width={100}/>
+              </div>
             </Col>
             <Col span={11}>
               <Menu mode="horizontal" selectedKeys={selectedKey}>
