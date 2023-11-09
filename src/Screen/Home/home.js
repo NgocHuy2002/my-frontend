@@ -12,7 +12,7 @@ import FormSanPham from "../SanPham";
 import DanhSachSanPham from "../DS_SanPham";
 import DanhSachHopDong from "../DS_DaGui";
 import TrungTam from "../TrungTam";
-import Logo from "D:/1_Work/4_React/bc_backend/my-frontend/src/Item/logo2.png"
+import Logo from "../../Item/logo2.png"
 
 const Home = ({ children }) => {
   const location = useLocation();

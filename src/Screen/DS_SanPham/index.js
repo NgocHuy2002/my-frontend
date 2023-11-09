@@ -34,6 +34,8 @@ import html2canvas from "html2canvas";
 import CommonButtonDelete from "../../Component/CustomDeleteButton";
 import dayjs from "dayjs";
 
+moment.locale("vi");
+
 const DanhSachSanPham = (prop) => {
   // const { userId } = prop;
   const [list, setList] = useState();
@@ -42,7 +44,7 @@ const DanhSachSanPham = (prop) => {
   const [form] = Form.useForm();
   const [file] = Form.useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEdit, setIsEdit] = useState(true);
+  const [productId, setProductId] = useState();
   const info = JSON.parse(localStorage.getItem("user"));
   const userId = info ? info._id : null;
   const [product, setProduct] = useState();
@@ -55,6 +57,7 @@ const DanhSachSanPham = (prop) => {
   const [publicKeyFile, setPublicKeyFile] = useState(null);
   const [dataDecode, setDataDecode] = useState();
   const [encodeData, setInfo] = useState();
+
   const handlePublicKeyChange = (event) => {
     const file = event.target.files[0];
     setPublicKeyFile(file);
@@ -172,7 +175,11 @@ const DanhSachSanPham = (prop) => {
         <CommonButtonDelete onConfirm={() => handleDelete(value._id)} />
         <CommonButtonEdit
           icon={<ExportOutlined />}
-          disabled={value.isSend == "APPROVED" || value.isSend == "REFUSE" ? false : true}
+          disabled={
+            value.isSend == "APPROVED" || value.isSend == "REFUSE"
+              ? false
+              : true
+          }
           titleTooltip={"Xem thông tin kiểm định"}
           onClick={() => handleSee(value)}
         />
@@ -181,6 +188,7 @@ const DanhSachSanPham = (prop) => {
   }
   const handleSee = (value) => {
     setIsOpen(true);
+    setProductId(value._id);
     axios
       .get("http://localhost:3001/api/contracts/", {
         params: {
@@ -188,8 +196,7 @@ const DanhSachSanPham = (prop) => {
         },
       })
       .then((response) => {
-        console.log(response);
-          setDataDecode(response.data[0].data);
+        setDataDecode(response.data[0].data);
       })
       .catch((error) => {
         console.error("Error fetching data: ", error);
@@ -205,7 +212,6 @@ const DanhSachSanPham = (prop) => {
   );
   // ---- ACTION ---- //
   const handleDelete = async (productId) => {
-    console.log(productId);
     try {
       await axios.delete(`http://localhost:3001/api/product/${productId}`); // Adjust the API endpoint
       // After successful deletion, update the product list
@@ -253,42 +259,41 @@ const DanhSachSanPham = (prop) => {
     const values = form.getFieldsValue();
     let sendBy = userId;
     let sendTo = values.receiver;
-    let name = values.name.trim();
-    html2canvas(modalContentRef.current).then((canvas) => {
-      // Convert the canvas to a Blob
-      canvas.toBlob((blob) => {
-        // Create a FormData object to send the image as a file
-        const formData = new FormData();
-        formData.append("image", blob, name + ".png");
-        formData.append("sendBy", sendBy);
-        formData.append("sendTo", sendTo);
-        formData.append("productId", product._id);
-        // Send the image to the backend
-        try {
-          const response = axios.post(
-            "http://localhost:3001/api/images/upload-image",
-            formData,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            }
-          );
-          if (response) {
-            messageApi.open({
-              type: "success",
-              content: response,
-            });
-            form.resetFields();
-          }
-        } catch (error) {
-          messageApi.open({
-            type: "error",
-            content: error,
-          });
-        }
+    let name = values.name;
+
+    try {
+      const canvas = await html2canvas(modalContentRef.current);
+      const blob = await new Promise((resolve, reject) => {
+        canvas.toBlob(resolve, "image/png");
       });
-    });
+
+      const formData = new FormData();
+      formData.append("image", blob, name + ".png");
+      formData.append("sendBy", sendBy);
+      formData.append("sendTo", sendTo);
+      formData.append("productId", product._id);
+
+      const response = await axios.post(
+        "http://localhost:3001/api/images/upload-image",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      messageApi.open({
+        type: "success",
+        content: response.data.message, // Assuming response contains data you want to display
+      });
+      form.resetFields();
+    } catch (error) {
+      messageApi.open({
+        type: "error",
+        content: error.message, // Display the error message
+      });
+    }
   };
 
   // ---- MODAL ACTION ---- //
@@ -305,7 +310,6 @@ const DanhSachSanPham = (prop) => {
     setProduct(value);
     const matches = value.hsd.match(/^(\d+) (.+)$/);
 
-    console.log(matches);
     // Check if there are matches
     if (matches && matches.length === 3) {
       number = matches[1]; // Extracted number
@@ -344,6 +348,45 @@ const DanhSachSanPham = (prop) => {
         console.error(error);
       });
   };
+  // ==== PUCBLIC ==== //
+  const handlePublic = async (e) => {
+    const name = e.filename;
+    const createdTime = e.createAt;
+    const test = e.test;
+    const sendBy = e.sendBy;
+    try {
+      const response = await axios.post("http://localhost:3001/api/public", {
+        name,
+        createdTime,
+        test,
+        sendBy,
+      });
+      if (response.data) {
+        if (response.data.message === "Success") {
+          axios
+            .put(`http://localhost:3001/api/product/${productId}`, {
+              isPublic: true,
+            })
+            .then((response) => {
+              console.log(response);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        } else {
+          messageApi.open({
+            type: "error",
+            content: response.data.message,
+          });
+        }
+      }
+    } catch (error) {
+      messageApi.open({
+        type: "error",
+        content: error.response.data.message,
+      });
+    }
+  };
   // ---- HANDLE UPDATE ---- //
   const handleUpdateProduct = (value) => {
     setIsSend(false);
@@ -379,7 +422,6 @@ const DanhSachSanPham = (prop) => {
     axios
       .put(`http://localhost:3001/api/product/${id}`, value)
       .then((response) => {
-        console.log(response);
         setIsModalOpen(false);
       })
       .catch((error) => {
@@ -413,6 +455,7 @@ const DanhSachSanPham = (prop) => {
   }, [search, isModalOpen]);
   return (
     <>
+      {contextHolder}
       <Card
         size="small"
         title={
@@ -435,7 +478,7 @@ const DanhSachSanPham = (prop) => {
           layout="vertical"
           form={form}
           onFinish={handleSend}
-          disabled={product && product.isSend != "WAIT" ? true : false}
+          disabled={product && product.isSend !== "WAIT" ? true : false}
         >
           <div ref={modalContentRef} style={{ padding: 15 }}>
             <Form.Item
@@ -528,7 +571,7 @@ const DanhSachSanPham = (prop) => {
           </div>
           <div style={{ textAlign: "center" }}>
             <Button
-              disabled={product && product.isSend != "WAIT" ? true : false}
+              disabled={product && product.isSend !== "WAIT" ? true : false}
               onClick={(value) => handleEdit(value)}
             >
               Chỉnh sửa
@@ -537,7 +580,7 @@ const DanhSachSanPham = (prop) => {
               htmlType="submit"
               // onClick={captureModalContent}
               type="primary"
-              disabled={product && product.isSend != "WAIT" ? true : false}
+              disabled={product && product.isSend !== "WAIT" ? true : false}
               style={{ marginLeft: "10px" }}
             >
               Gửi kiểm duyệt
@@ -565,20 +608,26 @@ const DanhSachSanPham = (prop) => {
       <Modal
         open={openInfo}
         onCancel={() => setOpenInfo(false)}
-        onOk={() => setOpenInfo(false)}
+        onOk={() => handlePublic(encodeData)}
+        okText={"Công khai"}
       >
         <div>
           <p>
-            <strong>Tên sản phẩm:</strong> {encodeData? encodeData.filename : null}
+            <strong>Tên sản phẩm:</strong>{" "}
+            {encodeData ? encodeData.filename : null}
           </p>
           <p>
-            <strong>Ngày tạo:</strong> {encodeData ? encodeData.createAt : null}
+            <strong>Ngày tạo:</strong>{" "}
+            {encodeData
+              ? moment(encodeData.createAt).locale("vi").format("MMMM Do YYYY")
+              : null}
           </p>
           {/* <p>
             <strong>Người gửi:</strong> {encodeData ? encodeData.sendBy : null}
           </p> */}
           <p>
-            <strong>Nhận xét:</strong> {encodeData ? encodeData.decription : null}
+            <strong>Nhận xét:</strong>{" "}
+            {encodeData ? encodeData.decription : null}
           </p>
           <hr />
           <p>

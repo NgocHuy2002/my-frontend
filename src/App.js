@@ -20,6 +20,7 @@ import GenerateKey from "./Screen/TestFolder/Generate";
 import { useEffect } from "react";
 import PhieuKiemDinh from "./Screen/TaoPhieuKiemDinh";
 import Info from "./Screen/Login/info";
+import SearchPage from "./Screen/DS_Public/index.js";
 
 const info = JSON.parse(localStorage.getItem("user"));
 // let userRole = info ? JSON.parse(localStorage.getItem("user")).role : null;
@@ -47,12 +48,18 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginScreen />} />
       </Routes>
+      <Routes>
+        <Route path="/search" element={<SearchPage />} />
+      </Routes>
       <Home>
         <Routes>
           <Route
             path="/home"
             element={
-              <ProtectedRoute element={<FormSanPham />} requiredRoles={["user"]} />
+              <ProtectedRoute
+                element={<FormSanPham />}
+                requiredRoles={["user"]}
+              />
             }
           />
           <Route
@@ -91,7 +98,10 @@ function App() {
           <Route
             path="/check"
             element={
-              <ProtectedRoute element={<KiemDuyet />} requiredRoles={["admin"]} />
+              <ProtectedRoute
+                element={<KiemDuyet />}
+                requiredRoles={["admin"]}
+              />
             }
           />
           <Route

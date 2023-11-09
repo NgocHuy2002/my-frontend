@@ -13,6 +13,7 @@ import {
   Modal,
 } from "antd";
 import { useNavigate, Navigate, useLocation } from "react-router-dom";
+import { SearchOutlined } from "@ant-design/icons";
 
 const LoginScreen = () => {
   const [users, setUsers] = useState([]);
@@ -153,7 +154,14 @@ const LoginScreen = () => {
           height: "100vh",
         }}
       >
-        <h1 style={{ paddingBottom: "20px", color: "white", fontFamily: "Arial, sans-serif", fontSize: "2rem" }}>
+        <h1
+          style={{
+            paddingBottom: "20px",
+            color: "white",
+            fontFamily: "Arial, sans-serif",
+            fontSize: "2rem",
+          }}
+        >
           Cấp phát chứng chỉ kiểm định chất lượng
         </h1>
         {contextHolder}
@@ -282,6 +290,11 @@ const LoginScreen = () => {
                 </Button>
               </Row>
             )}
+            <Form.Item style={{ display: "flex", justifyContent: "center" }}>
+              <Button icon={<SearchOutlined />}>
+                Tìm thông tin kiểm định
+              </Button>
+            </Form.Item>
           </Form>
         </Card>
       </div>
